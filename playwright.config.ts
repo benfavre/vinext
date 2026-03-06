@@ -62,6 +62,36 @@ const projectServers = {
       timeout: 60_000,
     },
   },
+  "cloudflare-pages-router-dev": {
+    testDir: "./tests/e2e/cloudflare-pages-router-dev",
+    server: {
+      command: "npx vite --port 4179",
+      cwd: "./examples/pages-router-cloudflare",
+      port: 4179,
+      reuseExistingServer: false,
+      timeout: 30_000,
+    },
+  },
+  "cloudflare-dev": {
+    testDir: "./tests/e2e/cloudflare-dev",
+    server: {
+      // Run vite dev (not wrangler) against the cloudflare example so that
+      // configureServer() is exercised with @cloudflare/vite-plugin loaded.
+      // This is the scenario that caused the startup crash:
+      //   server.environments["rsc"] exists (created by the Cloudflare plugin)
+      //   but has no .runner.import, so the old code fell through to
+      //   server.ssrLoadModule() which crashes during configureServer().
+      //
+      // reuseExistingServer is always false here — the whole point of this
+      // project is to verify the server starts successfully from cold. Reusing
+      // a previously-running server would hide a startup crash entirely.
+      command: "npx vite --port 4178",
+      cwd: "./examples/app-router-cloudflare",
+      port: 4178,
+      reuseExistingServer: false,
+      timeout: 30_000,
+    },
+  },
 };
 
 type ProjectName = keyof typeof projectServers;
