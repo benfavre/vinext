@@ -2203,6 +2203,11 @@ async function _handleRequest(request, __reqCtx, _mwCtx) {
       responseHeaders["Cache-Control"] = "s-maxage=" + revalidateSeconds + ", stale-while-revalidate";
     }
     // Merge middleware response headers into the RSC response.
+    if (_mwCtx.headers) {
+      for (const [key, value] of _mwCtx.headers) {
+        responseHeaders[key] = value;
+      }
+    }
     // Attach internal timing header so the dev server middleware can log it.
     // Format: "handlerStart,compileMs,renderMs"
     //   handlerStart - absolute performance.now() when _handleRequest began,
@@ -2213,11 +2218,6 @@ async function _handleRequest(request, __reqCtx, _mwCtx) {
     //   renderMs     - -1 sentinel for RSC-only (soft-nav) responses, since
     //                  rendering is handled asynchronously by the client. The
     //                  logging middleware computes render time as totalMs - compileMs.
-    if (_mwCtx.headers) {
-      for (const [key, value] of _mwCtx.headers) {
-        responseHeaders[key] = value;
-      }
-    }
     if (process.env.NODE_ENV !== "production") {
       const handlerStart = Math.round(__reqStart);
       const compileMs = __compileEnd !== undefined ? Math.round(__compileEnd - __reqStart) : -1;
